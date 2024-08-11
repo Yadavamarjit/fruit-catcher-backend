@@ -8,7 +8,6 @@ export const leaderBoard = async (req, res) => {
       { _id: id },
       { name: 1, highscore: 1, country_code: 1 }
     );
-    console.log({ currentUser, id });
 
     const topPlayers = await User.find(
       {},
