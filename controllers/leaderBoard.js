@@ -25,9 +25,9 @@ export const leaderBoard = async (req, res) => {
         highscore: { $gt: currentUser.highscore },
       })) + 1;
 
-    res.json({ currentUserRank, topPlayers });
+    return res.json({ currentUserRank, topPlayers });
   } catch (err) {
     console.error("Error fetching leaderboard:", err);
-    res.status(500).json({ err: "Internal server error" });
+    return res.status(500).json({ err: "Internal server error" });
   }
 };
