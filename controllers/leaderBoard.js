@@ -6,18 +6,18 @@ export const leaderBoard = async (req, res) => {
 
     const currentUser = await User.findOne(
       { _id: id },
-      { name: 1, highscore: 1, country_code: 1 }
+      { name: 1, highscore: 1, country_code: 1, _id: 0 }
     );
 
     const topPlayers = await User.find(
       {},
-      { name: 1, highscore: 1, country_code: 1, _id: 0 } // Exclude _id
+      { name: 1, highscore: 1, country_code: 1, _id: 0 }
     )
       .sort({ highscore: -1 })
       .limit(25);
 
     if (!currentUser) {
-      return res.json({ top25: topPlayers });
+      return res.json({ topPlayers });
     }
 
     const currentUserRank =
@@ -25,7 +25,23 @@ export const leaderBoard = async (req, res) => {
         highscore: { $gt: currentUser.highscore },
       })) + 1;
 
-    return res.json({ currentUserRank, topPlayers });
+    let userContext = [];
+    if (!topPlayers.some((player) => player.name === currentUser.name)) {
+      const surroundingPlayers = await User.find(
+        {},
+        { name: 1, highscore: 1, country_code: 1, _id: 0 }
+      )
+        .sort({ highscore: -1 })
+        .skip(Math.max(0, currentUserRank - 3))
+        .limit(5);
+
+      userContext = surroundingPlayers.map((player, index) => ({
+        ...player.toObject(),
+        rank: currentUserRank - 2 + index,
+      }));
+    }
+
+    return res.json({ currentUserRank, topPlayers, userContext });
   } catch (err) {
     console.error("Error fetching leaderboard:", err);
     return res.status(500).json({ err: "Internal server error" });
