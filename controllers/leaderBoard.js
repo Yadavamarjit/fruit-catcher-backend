@@ -11,7 +11,7 @@ export const leaderBoard = async (req, res) => {
 
     const topPlayers = await User.find(
       {},
-      { name: 1, highscore: 1, country_code: 1 }
+      { name: 1, highscore: 1, country_code: 1, _id: 0 } // Exclude _id
     )
       .sort({ highscore: -1 })
       .limit(25);
