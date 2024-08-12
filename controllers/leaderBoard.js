@@ -16,8 +16,14 @@ export const leaderBoard = async (req, res) => {
       .sort({ highscore: -1 })
       .limit(25);
 
+    // Add rank to topPlayers
+    const topPlayersWithRank = topPlayers.map((player, index) => ({
+      ...player.toObject(),
+      rank: index + 1,
+    }));
+
     if (!currentUser) {
-      return res.json({ topPlayers });
+      return res.json({ topPlayers: topPlayersWithRank });
     }
 
     const currentUserRank =
@@ -41,7 +47,10 @@ export const leaderBoard = async (req, res) => {
       }));
     }
 
-    return res.json({ currentUserRank, topPlayers, userContext });
+    return res.json({
+      currentUserRank,
+      topPlayers: [...topPlayersWithRank, ...userContext],
+    });
   } catch (err) {
     console.error("Error fetching leaderboard:", err);
     return res.status(500).json({ err: "Internal server error" });
